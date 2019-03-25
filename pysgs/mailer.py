@@ -32,7 +32,7 @@ class Mailer(Server):
             dict -- smtplib response
         """
 
-        return super.sender(self.message)
+        return super().sender(self.message)
 
     def setup(self, sender='', recipients=None, subject=''):
         """Setting mail configuration

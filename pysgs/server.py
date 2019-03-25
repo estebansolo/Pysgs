@@ -1,30 +1,64 @@
+"""
+Use smtplib to send message through SendGrid
+"""
 import smtplib
+from pysgs.exceptions import SGSError
+
 
 class Server:
+    """
+    Server class to send messages
+    """
+
     def __init__(self, api_key=''):
         """
-        Create SMTP server
+        Keyword Arguments:
+            api_key {str} -- SendGrid Api Key (default: {''})
         """
-        self.api_key = api_key
+
+        # SendGrid Login
         self.api_user = 'apikey'
+        self.api_key = api_key
+
+        # SMTP
+        self.smtp_port = '25'
         self.smtp_host = 'smtp.sendgrid.net'
-        self.smtp_port = '587'
+        self.start()
 
     def start(self):
-        self.server = smtplib.SMTP("{}: {}".format(self.smtp_host, self.smtp_port))
-        self.server.starttls()
+        """
+        Initialize SMTP Server
+        """
+        smtp_data = "{}: {}".format(self.smtp_host, self.smtp_port)
+        self.service = smtplib.SMTP(smtp_data)
+        self.service.starttls()
 
-        """
-        Using Credentials
-        """
-        self.server.login(self.api_user, self.api_key)
+        # Using Credentials
+        self.service.login(self.api_user, self.api_key)
 
     def close(self):
-        self.server.quit()
-
-    def send(self, message):
         """
-        Send the message
+        Quit SMTP Server
         """
-        self.server.sendmail(message['From'], message['To'], message.as_string())
+        self.service.quit()
 
+    def sender(self, message):
+        """Send message with smtplib
+
+        Arguments:
+            message {dict} -- Message to send
+
+        Raises:
+            Exception -- Message could not been send.
+
+        Returns:
+            dict -- smtplib response
+        """
+        if not message:
+            raise SGSError('Message could not been send.')
+
+        return self.service.sendmail(
+            message['From'],
+            message['To'],
+            message.as_string()
+        )

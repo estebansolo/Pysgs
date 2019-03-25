@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
     
 setuptools.setup(
     name='pysgs',
-    version='0.1',
+    version='1.0',
     author="Esteban Solorzano",
     author_email="estebansolorzano27@gmail.com",
     description="Send messages through SendGrid using SMTP",

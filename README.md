@@ -10,6 +10,7 @@ Setup
     from pysgs import Mailer
     
     service = Mailer('SENDGRID_API_KEY')
+
     service.setup(
         sender="EMAIL",
         recipients="EMAIL",
@@ -31,7 +32,7 @@ Usage
     service.add_content('Hello world!', 'text')
     service.send()
     
-#### Send an email with HTML
+#### Send email with HTML
     service.add_content('<h1>Hello world!</h1>', 'html')
     service.send()
     
@@ -46,6 +47,7 @@ Usage
 
     try:
         service = Mailer('SENDGRID_API_KEY')
+
         service.setup(
             sender="EMAIL",
             recipients="EMAIL",
@@ -57,5 +59,6 @@ Usage
 
         # Close Connection
         service.close()
+        
     except SGSError as e:
         print("There was an error: " + e)

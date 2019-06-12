@@ -1,64 +1,109 @@
-# Pysgs - SendGrid SMTP
-Send messages through SendGrid using SMTP
+# PYSGS
 
-Installation
-============
-    $ pip install pysgs
+This is a small tool designed as part of learning, allows sending SendGrid messages via SMTP
 
-Setup
-=====
-    from pysgs import Mailer
-    
-    service = Mailer('SENDGRID_API_KEY')
+## Table of Contents
+- [Installation](#installation)
+- [Setup](#setup)
+  - [Headers](#headers)
+  - [Sender](#sender)
+- [Usage](#usage)
+  - [Plain text](#plain-text)
+  - [HTML Content](#html-content)
+  - [Attachment](#attachment)
+- [Example](#example)
 
-    service.setup(
-        sender="EMAIL",
-        recipients="EMAIL",
-        subject="SUBJECT"
-    )
-#### You can send messages to multiple recipients by passing a list of emails
-    service.setup(
-        sender="EMAIL",
-        recipients=[
-            'EMAIL',
-            'EMAIL'
-        ],
-        subject="SUBJECT"
-    )
-    
-Usage
-=====
-#### Send a basic email
-    service.add_content('Hello world!', 'text')
+
+## Installation
+
+```
+pip install pysgs
+```
+
+## Setup
+
+```python
+import pysgs
+service = pysgs.mailer('SENDGRID_API_KEY')
+```
+
+### Headers
+
+```python
+sender = "user@example.com"
+recipient = "anotheruser@example.com"
+subject = "This is a Subject!!"
+service.headers(sender, recipient, subject)
+```
+
+### Sender
+
+There are different ways to set recipent emails.
+
+  - user@example.com
+  - user@example.com, anotheruser@example.com
+  - User <user@example.com>
+  - User <user@example.com>, Another User <anotheruser@example.com>
+
+You can also send a list of recipients
+
+```python
+recipients = [
+    "User <user@example.com>",
+    "Another User <anotheruser@example.com>"
+]
+```
+
+## Usage
+
+### Plain text
+
+```python
+service.content('Message from sendgrid')
+service.send()
+```
+
+### HTML Content
+
+```python
+service.content('<h1>Hello World!</h1>', 'html')
+service.send()
+```
+
+### Attachment
+
+```python
+service.content('/path/to/file/audio.mp3', is_attach=True)
+service.send()
+```
+
+## Example
+
+```python
+import pysgs
+from pysgs.exceptions import SGSError
+
+try:
+    """Start connection"""
+    service = pysgs.mailer("SENDGRID_API_KEY")
+
+    """Set message headers"""
+    sender = "user@example.com"
+    recipient = "anotheruser@example.com"
+    subject = "This is a Subject!!"
+    service.headers(sender, recipient, subject)
+
+    """Set content"""
+    service.content('Message from sendgrid')
+    service.content('<h1>Hello World!</h1>', 'html')
+    service.content('/path/to/file/audio.mp3', is_attach=True)
+
+    """Send message"""
     service.send()
-    
-#### Send email with HTML
-    service.add_content('<h1>Hello world!</h1>', 'html')
-    service.send()
-    
-#### Send email with attachment
-    service.add_content('<h1>Hello world!</h1>', 'html')
-    service.add_attachment("FILE PATH")
-    service.send()
-    
-# Full Example
-    from pysgs import Mailer
-    from pysgs.exceptions import SGSError
 
-    try:
-        service = Mailer('SENDGRID_API_KEY')
+    """Finish service"""
+    service.close()
 
-        service.setup(
-            sender="EMAIL",
-            recipients="EMAIL",
-            subject="SUBJECT"
-        )
-
-        service.add_content('<h1>Message from sendgrid</h1>')
-        service.send()
-
-        # Close Connection
-        service.close()
-        
-    except SGSError as e:
-        print("There was an error: " + e)
+except SGSError as e:
+    print('There was an error: ' + str(e))
+```

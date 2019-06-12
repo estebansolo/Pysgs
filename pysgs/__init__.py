@@ -4,7 +4,7 @@ Set module version
 from pysgs.mailer import Mailer
 
 __author__ = "Esteban Solorzano"
-__version__ = '0.1.1'
+__version__ = '0.1.2'
 
 """
 The default mailer session

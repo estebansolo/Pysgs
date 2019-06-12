@@ -2,10 +2,10 @@ import setuptools
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
-    
+
 setuptools.setup(
     name='pysgs',
-    version='1.1',
+    version='1.2',
     author="Esteban Solorzano",
     author_email="estebansolorzano27@gmail.com",
     description="Send messages through SendGrid using SMTP",

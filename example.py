@@ -1,22 +1,22 @@
-from pysgs import Mailer
+from pysgs import mailer
 from pysgs.exceptions import SGSError
 
 try:
-    # Start connection
-    service = Mailer('SENDGRID_API_KEY')
+    """Start connection"""
+    service = mailer('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')
     
-    service.setup(
-        sender="EMAIL",
-        recipients="EMAIL",
-        subject="SUBJECT"
-    )
+    for i in [1, 2]:
+        sender = "madabet92@gmail.com"
+        recipient = "estebansolorzano27@gmail.com"
+        subject = f"This is the {i} Subject!!"
+        service.setup(sender, recipient, subject)
 
-    service.add_content('<h1>Hello World!</h1>')
-    
-    # Send message
-    service.send()
+        service.add_content('<h1>Hello World!</h1>', 'html')
+        
+        """Send message"""
+        service.send()
 
-    # Close Connection
+    """Close Connection"""
     service.close()
 except SGSError as e:
-    print('There was an error: ' + e)
+    print('There was an error: ' + str(e))

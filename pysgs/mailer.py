@@ -23,18 +23,14 @@ class Mailer(Server):
             api_key {str} -- SendGrid Api Key (default: {''})
         """
         Server.__init__(self, api_key=api_key)
+        self.initialize()
+
+
+    def initialize(self):
         self.message = MIMEMultipart()
 
-    def send(self):
-        """Call sender method
 
-        Returns:
-            dict -- smtplib response
-        """
-
-        return super().sender(self.message)
-
-    def setup(self, sender='', recipients=None, subject=''):
+    def setup(self, sender, recipients, subject):
         """Setting mail configuration
 
         Keyword Arguments:
@@ -54,6 +50,17 @@ class Mailer(Server):
             self.message['To'] = recipients
         else:
             raise SGSError('Recipients information has not a valid type.')
+
+
+    def send(self):
+        """Call sender method
+
+        Returns:
+            dict -- smtplib response
+        """
+
+        return self.sender(self.message)
+
 
     def add_attachment(self, path_attach=''):
         """Add an attachment to the message
@@ -114,11 +121,12 @@ class Mailer(Server):
 
         self.message.attach(attach)
 
-    def add_content(self, text="", content_type="html"):
+
+    def add_content(self, text, content_type="text"):
         """[summary]
 
         Keyword Arguments:
             text {str} -- Plain text or HTML content (default: {""})
-            content_type {str} -- "html" or "text" (default: {"html"})
+            content_type {str} -- "html" or "text" (default: {"text"})
         """
         self.message.attach(MIMEText(text, content_type))

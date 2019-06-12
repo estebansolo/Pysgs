@@ -57,8 +57,10 @@ class Server:
         if not message:
             raise SGSError('Message could not been send.')
 
-        return self.service.sendmail(
+        self.service.sendmail(
             message['From'],
             message['To'],
             message.as_string()
         )
+
+        self.initialize()

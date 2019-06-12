@@ -5,14 +5,12 @@ This is a small tool designed as part of learning, allows sending SendGrid messa
 [TOC]
 
 ## Installation
-==========
 
 ```
 pip install pysgs
 ```
 
 ## Setup
-==========
 
 ```python
 import pysgs
@@ -47,7 +45,6 @@ recipients = [
 ```
 
 ## Usage
-==========
 
 ### Plain text
 
@@ -71,7 +68,6 @@ service.send()
 ```
 
 ## Example
-==========
 
 ```python
 import pysgs

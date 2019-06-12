@@ -2,77 +2,102 @@
 
 This is a small tool designed as part of learning, allows sending SendGrid messages via SMTP
 
+[TOC]
+
 ## Installation
+----------
 
 ```
 pip install pysgs
 ```
 
 ## Setup
+----------
 
 ```python
-from pysgs import Mailer
+import pysgs
+service = pysgs.mailer('SENDGRID_API_KEY')
+```
 
-service = Mailer('SENDGRID_API_KEY')
+### Headers
 
-sender = "YOUR_EMAIL"
-recipient = "RECIPIENT_EMAIL"
+```python
+sender = "user@example.com"
+recipient = "anotheruser@example.com"
 subject = "This is a Subject!!"
-service.setup(sender, recipient, subject)
+service.headers(sender, recipient, subject)
+```
 
-"""You can send messages to multiple recipients by passing a list of emails"""
+### Sender
 
-recipient = [
-    "RECIPIENT_EMAIL_1",
-    "RECIPIENT_EMAIL_2"
+There are different ways to set recipent emails.
+
+  - user@example.com
+  - user@example.com, anotheruser@example.com
+  - User <user@example.com>
+  - User <user@example.com>, Another User <anotheruser@example.com>
+
+You can also send a list of recipients
+
+```python
+recipients = [
+    "User <user@example.com>",
+    "Another User <anotheruser@example.com>"
 ]
-
-service.setup(sender, recipients, subject)
 ```
 
 ## Usage
+----------
 
-### Send a basic email
+### Plain text
+
 ```python
-service.add_content('Hello world!')
+service.content('Message from sendgrid')
 service.send()
 ```
 
-### Send email with HTML
+### HTML Content
 
 ```python
-service.add_content('<h1>Hello world!</h1>', 'html')
+service.content('<h1>Hello World!</h1>', 'html')
 service.send()
 ```
 
-### Send email with attachment
+### Attachment
 
 ```python
-service.add_content('<h1>Hello world!</h1>', 'html')
-service.add_attachment("FILE PATH")
+service.content('/path/to/file/audio.mp3', is_attach=True)
 service.send()
 ```
 
 ## Example
+----------
 
 ```python
-from pysgs import Mailer
+import pysgs
 from pysgs.exceptions import SGSError
 
 try:
-    service = Mailer('SENDGRID_API_KEY')
+    """Start connection"""
+    service = pysgs.mailer("SENDGRID_API_KEY")
 
-    sender = "YOUR_EMAIL"
-    recipient = "RECIPIENT_EMAIL"
+    """Set message headers"""
+    sender = "user@example.com"
+    recipient = "anotheruser@example.com"
     subject = "This is a Subject!!"
-    service.setup(sender, recipient, subject)
+    service.headers(sender, recipient, subject)
 
-    service.add_content('Message from sendgrid')
+    """Set content"""
+    service.content('Message from sendgrid')
+    service.content('<h1>Hello World!</h1>', 'html')
+    service.content('/path/to/file/audio.mp3', is_attach=True)
+
+    """Send message"""
     service.send()
 
-    # Close Connection
+    """Finish service"""
     service.close()
-    
+
 except SGSError as e:
-    print("There was an error: " + str(e))
+    print('There was an error: ' + str(e))
 ```

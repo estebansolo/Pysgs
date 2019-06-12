@@ -17,20 +17,20 @@ class Mailer(Server):
     Mailer class to process messages
     """
 
-    def __init__(self, api_key=""):
+    def __init__(self, api_key, smtp_port=None):
         """
         Keyword Arguments:
-            api_key {str} -- SendGrid Api Key (default: {''})
+            api_key {str} -- SendGrid Api Key
+            smtp_port {str} -- Sendgrid support different smtp ports (optional)
         """
-        Server.__init__(self, api_key=api_key)
-        self.initialize()
+
+        self.api_key = api_key
+        self.api_user = 'apikey'
+        self.smtp_port = smtp_port
+        self.smtp_host = 'smtp.sendgrid.net'
 
 
-    def initialize(self):
-        self.message = MIMEMultipart()
-
-
-    def setup(self, sender, recipients, subject):
+    def headers(self, sender, recipients, subject):
         """Setting mail configuration
 
         Keyword Arguments:
@@ -41,28 +41,40 @@ class Mailer(Server):
         Raises:
             Exception -- Recipients information has not a valid type
         """
-        self.message['From'] = sender
-        self.message['Subject'] = subject
+
+        self.__initialize()
+
+        self._session_message['From'] = sender
+        self._session_message['Subject'] = subject
 
         if isinstance(recipients, list):
-            self.message['To'] = ", ".join(recipients)
+            self._session_message['To'] = ", ".join(recipients)
         elif isinstance(recipients, str):
-            self.message['To'] = recipients
+            self._session_message['To'] = recipients
         else:
-            raise SGSError('Recipients information has not a valid type.')
+            raise SGSError('Recipients information has not a valid value.')
 
 
-    def send(self):
-        """Call sender method
+    def content(self, content, content_type="plain", is_attach=False):
+        """[summary]
 
-        Returns:
-            dict -- smtplib response
+        Keyword Arguments:
+            content {str} -- Plain text, HTML content or File path
+            content_type {str} -- plain or html (default: {plain})
         """
 
-        return self.sender(self.message)
+        if is_attach:
+            self.__add_attachment(content)
+
+        else:
+            self.__add_content(content, content_type)
 
 
-    def add_attachment(self, path_attach=''):
+    def __initialize(self):
+        self._session_message = MIMEMultipart()
+
+
+    def __add_attachment(self, path_attach=""):
         """Add an attachment to the message
 
         Keyword Arguments:
@@ -71,8 +83,10 @@ class Mailer(Server):
         Raises:
             Exception -- Path is not a valid file type
         """
+
         if not os.path.isfile(path_attach):
             raise SGSError('Path is not a valid file type.')
+
 
         def guess_mime(path_attach):
             """
@@ -92,6 +106,10 @@ class Mailer(Server):
             with open(path_attach, 'rb') as file_name:
                 return file_name.read()
             return ""
+
+        def get_filename(path_attach):
+            file_path = open(path_attach)
+            return os.path.basename(file_path.name)
 
         # Guess Mime
         main_type, sub_type = guess_mime(path_attach)
@@ -116,17 +134,18 @@ class Mailer(Server):
         attach.add_header(
             'Content-Disposition',
             'attachment',
-            filename=path_attach
+            filename=get_filename(path_attach)
         )
 
-        self.message.attach(attach)
+        self._session_message.attach(attach)
 
 
-    def add_content(self, text, content_type="text"):
+    def __add_content(self, text="", content_type="plain"):
         """[summary]
 
         Keyword Arguments:
             text {str} -- Plain text or HTML content (default: {""})
-            content_type {str} -- "html" or "text" (default: {"text"})
+            content_type {str} -- html or plain (default: {plain})
         """
-        self.message.attach(MIMEText(text, content_type))
+
+        self._session_message.attach(MIMEText(text, content_type))

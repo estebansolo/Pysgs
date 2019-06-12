@@ -2,6 +2,7 @@
 Use smtplib to send message through SendGrid
 """
 import smtplib
+from smtplib import SMTPServerDisconnected
 from pysgs.exceptions import SGSError
 
 
@@ -9,32 +10,67 @@ class Server:
     """
     Server class to send messages
     """
+    service = None
 
-    def __init__(self, api_key=''):
+    def __init__(self):
+        pass
+
+
+    @property
+    def api_key(self):
+        return self._api_key
+
+
+    @api_key.setter
+    def api_key(self, value):
+        self._api_key = value if value is not None else ""
+
+
+    @property
+    def api_user(self):
+        return self._api_user
+
+
+    @api_user.setter
+    def api_user(self, value):
+        self._api_user = value
+
+
+    @property
+    def smtp_host(self):
+        return self._smtp_host
+
+
+    @smtp_host.setter
+    def smtp_host(self, value):
+        self._smtp_host = value
+
+
+    @property
+    def smtp_port(self):
+        return self._smtp_port
+
+
+    @smtp_port.setter
+    def smtp_port(self, value):
+        port = value if value is not None else '25'
+        self._smtp_port = port
+
+
+    def send(self):
         """
-        Keyword Arguments:
-            api_key {str} -- SendGrid Api Key (default: {''})
+        Send message with smtplib
         """
 
-        # SendGrid Login
-        self.api_user = 'apikey'
-        self.api_key = api_key
+        if not self._session_message:
+            raise SGSError('Message could not been send.')
 
-        # SMTP
-        self.smtp_port = '25'
-        self.smtp_host = 'smtp.sendgrid.net'
-        self.start()
+        # Validate initialized service
+        if self.service is None:
+            self.__setup_smtp()
 
-    def start(self):
-        """
-        Initialize SMTP Server
-        """
-        smtp_data = "{}: {}".format(self.smtp_host, self.smtp_port)
-        self.service = smtplib.SMTP(smtp_data)
-        self.service.starttls()
+        return self.sender()
 
-        # Using Credentials
-        self.service.login(self.api_user, self.api_key)
 
     def close(self):
         """
@@ -42,25 +78,32 @@ class Server:
         """
         self.service.quit()
 
-    def sender(self, message):
-        """Send message with smtplib
 
-        Arguments:
-            message {dict} -- Message to send
-
-        Raises:
-            Exception -- Message could not been send.
-
-        Returns:
-            dict -- smtplib response
+    def sender(self):
         """
-        if not message:
+        Send message with smtplib
+        """
+
+        if not self._session_message:
             raise SGSError('Message could not been send.')
 
-        self.service.sendmail(
-            message['From'],
-            message['To'],
-            message.as_string()
+        return self.service.sendmail(
+            self._session_message['From'],
+            self._session_message['To'],
+            self._session_message.as_string()
         )
 
-        self.initialize()
+
+    def __setup_smtp(self):
+        """
+        Initialize SMTP Server
+        """
+        try:
+            smtp_data = f"{self.smtp_host}: {self.smtp_port}"
+
+            self.service = smtplib.SMTP(smtp_data)
+            self.service.starttls()
+
+            self.service.login(self.api_user, self.api_key)
+        except SMTPServerDisconnected as disconnected:
+            raise SGSError(str(disconnected))

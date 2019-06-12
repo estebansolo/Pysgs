@@ -2,7 +2,17 @@
 
 This is a small tool designed as part of learning, allows sending SendGrid messages via SMTP
 
-[TOC]
+## Table of Contents
+- [Installation](#installation)
+- [Setup](#setup)
+  - [Headers](#headers)
+  - [Sender](#sender)
+- [Usage](#usage)
+  - [Plain text](#plain-text)
+  - [HTML Content](#html-content)
+  - [Attachment](#attachment)
+- [Example](#example)
+
 
 ## Installation
 
